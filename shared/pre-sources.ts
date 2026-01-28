@@ -493,7 +493,6 @@ export const originSources = {
   title: "跨境榜",              // 与 sources.json 一致
       },
     },
-  },
 } as const satisfies Record<string, OriginSource>
 
 export function genSources() {
