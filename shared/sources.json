@@ -560,7 +560,7 @@
     "name": "AMZ123跨境",
     "type": "hottest",
     "column": "china",
-    "icon": "https://www.amz123.com/favicon.ico"
+    "icon": "https://www.amz123.com/favicon.ico",
     "color": "green",
     "interval": 1800000,
     "title": "跨境榜"
