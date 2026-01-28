@@ -2,31 +2,48 @@ import process from "node:process"
 import type { NewsItem } from "@shared/types"
 import type { CacheInfo } from "../types"
 
-// 简单的 Redis HTTP 客户端，专门用于 Vercel Edge 环境
 class RedisClient {
   private url: string
   private token: string
 
   constructor() {
-    // 自动读取我们刚才配好的变量
-    this.url = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || ""
-    this.token = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || ""
+    // 1. 获取变量
+    let rawUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || ""
+    let rawToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || ""
+
+    // 2. 清洗变量 (关键修复：去掉可能存在的引号和空格)
+    // 很多时候复制粘贴会带上 "" 或空格，这里强制去掉
+    this.url = rawUrl.replace(/["'\s]/g, "") 
+    this.token = rawToken.replace(/["'\s]/g, "")
+
+    // 3. 打印日志帮助排查 (在 Vercel Logs 里能看到)
+    if (!this.url) {
+      console.error("【严重警告】Redis URL 为空！缓存功能将失效。")
+    } else if (!this.url.startsWith("http")) {
+      console.error(`【严重警告】Redis URL 格式错误 (必须以 http 开头): ${this.url}`)
+      this.url = "" // 置空以防报错
+    }
   }
 
   async command(command: string, ...args: any[]) {
+    // 如果 URL 不对，直接返回 null，绝对不让网站崩溃
     if (!this.url || !this.token) return null
     
-    // 使用 fetch 发送 HTTP 请求，完美支持 Edge 环境
-    const res = await fetch(`${this.url}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-      body: JSON.stringify([command, ...args]),
-    })
-    
-    const json: any = await res.json()
-    return json.result
+    try {
+      const res = await fetch(this.url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${this.token}`,
+        },
+        body: JSON.stringify([command, ...args]),
+      })
+      
+      const json: any = await res.json()
+      return json.result
+    } catch (e) {
+      console.error("Redis 请求失败:", e)
+      return null
+    }
   }
 }
 
@@ -37,9 +54,9 @@ export class Cache {
     this.redis = new RedisClient()
   }
 
-  // Redis 不需要像 SQL 那样建表，所以这里留空即可
   async init() {
-    logger.success(`init cache (redis mode)`)
+    // 这里的 log 也可以看到是否初始化成功
+    // logger.success(`init cache (redis mode)`) 
   }
 
   async set(key: string, value: NewsItem[]) {
@@ -47,24 +64,20 @@ export class Cache {
     const payload = {
       id: key,
       updated: now,
-      data: value // 直接存对象，不需要 stringify，因为 redis command 会处理
+      data: value
     }
-    // 将整个对象存为一个 JSON 字符串
     await this.redis.command("SET", key, JSON.stringify(payload))
-    logger.success(`set ${key} cache`)
   }
 
   async get(key: string): Promise<CacheInfo | undefined> {
     const result = await this.redis.command("GET", key)
     if (result) {
       try {
-        // 解析取回来的 JSON
         const parsed = JSON.parse(result)
-        logger.success(`get ${key} cache`)
         return {
           id: parsed.id,
           updated: parsed.updated,
-          items: parsed.data, // 注意这里对应上面存的 data
+          items: parsed.data,
         }
       } catch (e) {
         return undefined
@@ -74,14 +87,11 @@ export class Cache {
 
   async getEntire(keys: string[]): Promise<CacheInfo[]> {
     if (keys.length === 0) return []
-    
-    // 使用 MGET 一次性获取所有 key，效率更高
     const results = await this.redis.command("MGET", ...keys)
     
     if (results && Array.isArray(results)) {
-      logger.success(`get entire (...) cache`)
       return results
-        .filter(item => item !== null) // 过滤掉空的
+        .filter(item => item !== null)
         .map(item => {
            try {
              const parsed = JSON.parse(item)
@@ -107,15 +117,10 @@ export class Cache {
 
 export async function getCacheTable() {
   try {
-    // 这一行原有的 db 逻辑我们直接忽略，因为我们改用 HTTP 模式了
     if (process.env.ENABLE_CACHE === "false") return
-    
     const cacheTable = new Cache()
-    // Redis 不需要 init，但为了保持兼容性保留调用
-    if (process.env.INIT_TABLE !== "false") await cacheTable.init()
-    
     return cacheTable
   } catch (e) {
-    logger.error("failed to init database ", e)
+    console.error("failed to init database ", e)
   }
 }
