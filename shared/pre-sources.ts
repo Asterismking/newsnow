@@ -483,17 +483,14 @@ export const originSources = {
       },
     },
   },
-   "amz123": {
-    name: "AMZ123",
-    color: "orange",
-    home: "https://www.amz123.com",
-    column: "tech",  // 这里决定了它在哪个栏目
-    type: "realtime",
-    sub: {
-      "kx": {
-        title: "跨境快讯",
-        column: "tech",
-        type: "realtime"
+ "amz123": {
+  name: "AMZ123跨境",           // 与 sources.json 一致
+  type: "realtime",             // realtime 或 hottest
+  column: "tech",
+  home: "https://www.amz123.com/kx",  // 与 sources.json 一致
+  color: "green",               // 与 sources.json 一致
+  interval: Time.Common,        // 30分钟 = 30 * 60 * 1000
+  title: "跨境榜",              // 与 sources.json 一致
       },
     },
   },
