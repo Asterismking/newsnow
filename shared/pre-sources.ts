@@ -483,6 +483,20 @@ export const originSources = {
       },
     },
   },
+   "amz123": {
+    name: "AMZ123",
+    color: "orange",
+    home: "https://www.amz123.com",
+    column: "tech",  // 这里决定了它在哪个栏目
+    type: "realtime",
+    sub: {
+      "kx": {
+        title: "跨境快讯",
+        column: "tech",
+        type: "realtime"
+      }
+    }
+  },
 } as const satisfies Record<string, OriginSource>
 
 export function genSources() {
