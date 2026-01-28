@@ -4,7 +4,7 @@ export default defineSource(async () => {
   // 这里是你用 RSS.app 生成的那个链接 
   const url = "https://rss.app/feeds/FvmjX50LfnLnPZyk.xml"
   
-  // 获取 XML 内容
+  // 获取 XML 内容 
   const xml = await myFetch(url)
   
   // 使用 xml 模式解析
