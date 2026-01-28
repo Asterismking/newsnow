@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio"
-import { defineSource } from "./utils"  // 如果报错找不到 utils，可能需要保留原有的引用方式或根据其他文件调整
+
 
 export default defineSource({
   "amz123": async () => {
