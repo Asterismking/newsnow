@@ -491,7 +491,6 @@ export const originSources = {
   color: "green",               // 与 sources.json 一致
   interval: Time.Common,        // 30分钟 = 30 * 60 * 1000
   title: "跨境榜",              // 与 sources.json 一致
-      },
     },
 } as const satisfies Record<string, OriginSource>
 
