@@ -563,5 +563,10 @@
     "color": "green",
     "interval": 1800000,
     "title": "热播榜"
+  },
+  "amz123": {
+    "id": "amz123",
+    "name": "AMZ123跨境",
+    "icon": "https://www.amz123.com/favicon.ico"
   }
 }
