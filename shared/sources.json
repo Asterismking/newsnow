@@ -555,14 +555,16 @@
     "interval": 1800000,
     "title": "热播榜"
   },
-  "amz123": {
+ "amz123": {
     "id": "amz123",
     "name": "AMZ123跨境",
     "type": "hottest",
-    "column": "china",
-    "icon": "https://www.amz123.com/kx",
+    "column": "tech",
+    "home": "https://www.amz123.com/kx",
+    "icon": "https://www.amz123.com/favicon.ico",
     "color": "green",
-    "interval": 600000,
+    "interval": 1800000,
     "title": "跨境榜"
+  }
   }
 }
