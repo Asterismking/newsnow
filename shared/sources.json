@@ -556,7 +556,6 @@
     "title": "热播榜"
   },
   "amz123": {
-    "id": "amz123",
     "name": "AMZ123跨境",
     "type": "hottest",
     "column": "china",
