@@ -494,8 +494,8 @@ export const originSources = {
         title: "跨境快讯",
         column: "tech",
         type: "realtime"
-      }
-    }
+      },
+    },
   },
 } as const satisfies Record<string, OriginSource>
 
